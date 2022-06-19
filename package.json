@@ -1,0 +1,13 @@
+{
+  "name": "haya-typeahead",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.com:kaspernj/haya-typeahead.git",
+  "author": "k@spernj.org",
+  "license": "MIT",
+  "dependencies": {
+    "classnames": "^2.3.1",
+    "debounce": "^1.2.1",
+    "diggerize": "^1.0.5"
+  }
+}

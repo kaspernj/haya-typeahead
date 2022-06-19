@@ -1,0 +1,19 @@
+.haya--typeahead {
+  position: relative;
+
+  .haya--typeahead--options-container {
+    border: 1px solid black;
+    background: #fff;
+  }
+
+  .haya--typeahead--options-container {
+    position: absolute;
+    width: 100%;
+  }
+
+  .haya--typeahead-option-container {
+    &[data-focus="true"] {
+      background: blue;
+    }
+  }
+}
