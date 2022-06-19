@@ -13,15 +13,15 @@ export default class HayaTypeahead extends React.PureComponent {
   inputRef = React.createRef()
 
   state = {
-    focus: false,
     options: [],
+    optionsOpen: false,
     selectionIndex: null
   }
 
   render() {
-    const {inputRef, onBlur, onChangeDebounced, onFocus, onKeyPress} = digs(this, "inputRef", "onBlur", "onChangeDebounced", "onFocus", "onKeyPress")
+    const {inputRef, onBlur, onChangeDebounced, onFocus, onKeyDown} = digs(this, "inputRef", "onBlur", "onChangeDebounced", "onFocus", "onKeyDown")
     const {className, inputProps} = this.props
-    const {focus, options, selectionIndex} = digs(this.state, "focus", "options", "selectionIndex")
+    const {options, optionsOpen, selectionIndex} = digs(this.state, "options", "optionsOpen", "selectionIndex")
 
     return (
       <div className={classNames("haya--typeahead", className)}>
@@ -30,10 +30,10 @@ export default class HayaTypeahead extends React.PureComponent {
           onBlur={onBlur}
           onChange={onChangeDebounced}
           onFocus={onFocus}
-          onKeyDown={onKeyPress}
+          onKeyDown={onKeyDown}
           ref={inputRef}
         />
-        {focus &&
+        {optionsOpen && options.length > 0 &&
           <div className="haya--typeahead--options-container">
             {options.map(({text, value}, optionIndex) =>
               <div className="haya--typeahead-option-container" data-focus={optionIndex == selectionIndex} key={value}>
@@ -52,32 +52,44 @@ export default class HayaTypeahead extends React.PureComponent {
     const option = digg(options, selectionIndex)
 
     input.value = option.text
+
+    this.setState({optionsOpen: false})
   }
 
-  onBlur = () => setTimeout(() => this.setState({focus: false}), 10)
+  onBlur = () => setTimeout(() => this.setState({optionsOpen: false}), 10)
 
   onChange = async (e) => {
     const {optionsCallback} = digs(this.props, "optionsCallback")
+    const {selectionIndex} = digs(this.state, "selectionIndex")
     const options = await optionsCallback({searchValue: e.target.value})
+    const newState = {options}
 
-    this.setState({options})
+    if (selectionIndex !== null && selectionIndex >= options.length) newState.selectionIndex = options.length - 1
+
+    this.setState(newState)
   }
 
   onChangeDebounced = debounce(digg(this, "onChange"), 250)
 
-  onFocus = () => this.setState({focus: true})
+  onFocus = () => this.setState({optionsOpen: true})
 
-  onKeyPress = (e) => {
+  onKeyDown = (e) => {
+    const {optionsOpen, selectionIndex} = digs(this.state, "optionsOpen", "selectionIndex")
+    const enterPressed = (e.code == "Enter" || e.keyCode == 13)
+    const leftAltPressed = (e.code == "AltLeft" || e.keyCode == 18)
+
     if (e.code == "ArrowDown" || e.keyCode == 40) {
       e.preventDefault()
       this.moveSelectionDown()
     } else if (e.code == "ArrowUp" || e.keyCode == 38){
       e.preventDefault()
       this.moveSelectionUp()
-    } else if ((e.code == "Enter" || e.keyCode == 13) && this.state.selectionIndex !== null) {
+    } else if (enterPressed && selectionIndex !== null) {
       e.preventDefault()
       this.applySelection()
     }
+
+    if (!optionsOpen && !enterPressed && !leftAltPressed) this.setState({optionsOpen: true})
   }
 
   moveSelectionUp = () => {
