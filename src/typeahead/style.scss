@@ -11,7 +11,9 @@
     width: 100%;
   }
 
-  .haya--typeahead-option-container {
+  .haya--typeahead-option-link {
+    display: block;
+
     &[data-focus="true"] {
       background: blue;
     }
