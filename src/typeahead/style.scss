@@ -8,6 +8,7 @@
 
   .haya--typeahead--options-container {
     position: absolute;
+    z-index: 9999;
     width: 100%;
   }
 
