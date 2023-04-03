@@ -7,12 +7,14 @@ import EventListener from "@kaspernj/api-maker/src/event-listener"
 export default class HayaTypeahead extends React.PureComponent {
   static propTypes = PropTypesExact({
     className: PropTypes.string,
+    inputComponent: PropTypes.elementType,
     inputProps: PropTypes.object,
+    inputRef: PropTypes.object,
     onOptionChosen: PropTypes.func,
     optionsCallback: PropTypes.func
   })
 
-  inputRef = React.createRef()
+  inputRef = this.props.inputRef || this.props.inputProps?.ref || React.createRef()
   rootRef = React.createRef()
 
   state = {
@@ -24,19 +26,15 @@ export default class HayaTypeahead extends React.PureComponent {
 
   render() {
     const {inputRef, onChange, onFocus, onKeyDown, rootRef} = digs(this, "inputRef", "onChange", "onFocus", "onKeyDown", "rootRef")
-    const {className, inputProps} = this.props
+    const {className, inputComponent, inputProps} = this.props
     const {options, optionsOpen, selectionIndex} = digs(this.state, "options", "optionsOpen", "selectionIndex")
+    const actualInputProps = {...inputProps, onChange, onFocus, onKeyDown, ref: inputRef}
 
     return (
       <div className={classNames("haya--typeahead", className)} ref={rootRef}>
         <EventListener event="click" onCalled={this.onWindowClicked} target={window} />
-        <input
-          {...inputProps}
-          onChange={onChange}
-          onFocus={onFocus}
-          onKeyDown={onKeyDown}
-          ref={inputRef}
-        />
+        {inputComponent && inputComponent({inputProps: actualInputProps})}
+        {!inputComponent && <input {...actualInputProps} />}
         {optionsOpen && options.length > 0 &&
           <div className="haya--typeahead--options-container">
             {options.map(({text, value}, optionIndex) =>
@@ -142,7 +140,6 @@ export default class HayaTypeahead extends React.PureComponent {
 
     // If options are open and a click is made outside of the options container
     if (optionsOpen && rootRef.current && !rootRef.current.contains(e.target)) {
-      console.log("clicked outside - close")
       this.setState({optionsOpen: false})
     }
   }
