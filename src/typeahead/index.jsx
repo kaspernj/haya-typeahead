@@ -10,6 +10,7 @@ export default class HayaTypeahead extends React.PureComponent {
     inputComponent: PropTypes.elementType,
     inputProps: PropTypes.object,
     inputRef: PropTypes.object,
+    onChange: PropTypes.func,
     onOptionChosen: PropTypes.func,
     optionsCallback: PropTypes.func
   })
@@ -77,6 +78,8 @@ export default class HayaTypeahead extends React.PureComponent {
     const value = e.target.value
 
     this.loadNewOptionsDebounced({value})
+
+    if (this.props.onChange) this.props.onChange(e)
   }
 
   loadNewOptions = async ({value}) => {
