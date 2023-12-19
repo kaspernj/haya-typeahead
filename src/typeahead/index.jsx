@@ -3,6 +3,7 @@ import classNames from "classnames"
 import debounce from "debounce"
 import {digs} from "diggerize"
 import EventListener from "@kaspernj/api-maker/src/event-listener"
+import PropTypesExact from "prop-types-exact"
 
 export default class HayaTypeahead extends React.PureComponent {
   static propTypes = PropTypesExact({
