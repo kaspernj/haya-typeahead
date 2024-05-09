@@ -1,69 +1,122 @@
-import "./style"
+import {Platform, Pressable, Text, TextInput, View} from "react-native"
+import {shapeComponent, ShapeComponent} from "set-state-compare/src/shape-component"
 import classNames from "classnames"
 import debounce from "debounce"
 import {digs} from "diggerize"
-import EventListener from "@kaspernj/api-maker/src/event-listener"
+import useEventListener from "@kaspernj/api-maker/src/use-event-listener"
 import PropTypesExact from "prop-types-exact"
 
-export default class HayaTypeahead extends React.PureComponent {
+const Option = shapeComponent(class Option extends ShapeComponent {
+  render() {
+    const {optionIndex, optionStyle, optionActiveStyle, selectionIndex, text, value} = this.props
+    const focus = optionIndex == selectionIndex
+    let style = {}
+
+    if (focus) {
+      style.backgroundColor = "blue"
+    }
+
+    if (optionStyle) style = Object.assign(style, optionStyle)
+    if (focus && optionActiveStyle) style = Object.assign(style, optionActiveStyle)
+
+    return (
+      <Pressable
+        dataSet={{class: "haya--typeahead-option-link", focus, value}}
+        onPress={this.onOptionLinkClicked}
+        style={style}
+      >
+        <Text>
+          {text}
+        </Text>
+      </Pressable>
+    )
+  }
+
+  onOptionLinkClicked = () => {
+    this.props.onOptionLinkClicked({optionIndex: this.props.optionIndex})
+  }
+})
+
+export default shapeComponent(class HayaTypeahead extends ShapeComponent {
   static propTypes = PropTypesExact({
     className: PropTypes.string,
     inputComponent: PropTypes.elementType,
     inputProps: PropTypes.object,
-    inputRef: PropTypes.object,
-    onChange: PropTypes.func,
+    onChangeText: PropTypes.func,
     onOptionChosen: PropTypes.func,
-    optionsCallback: PropTypes.func
+    optionsCallback: PropTypes.func,
+    optionsContainerStyle: PropTypes.object,
+    optionStyle: PropTypes.object,
+    optionActiveStyle: PropTypes.object,
+    style: PropTypes.object,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   })
 
-  inputRef = this.props.inputRef || this.props.inputProps?.ref || React.createRef()
-  rootRef = React.createRef()
+  setup() {
+    this.rootRef = useRef()
 
-  state = {
-    options: [],
-    optionsOpen: false,
-    selectionIndex: null,
-    selectedOption: null
+    this.useStates({
+      options: [],
+      optionsOpen: false,
+      selectionIndex: null,
+      selectedOption: null
+    })
   }
 
   render() {
-    const {inputRef, onChange, onFocus, onKeyDown, rootRef} = digs(this, "inputRef", "onChange", "onFocus", "onKeyDown", "rootRef")
-    const {className, inputComponent, inputProps} = this.props
+    const {onChangeText, onFocus, onKeyDown, rootRef} = digs(this, "onChangeText", "onFocus", "onKeyDown", "rootRef")
+    const {className, inputComponent, inputProps, optionsContainerStyle, optionStyle, optionActiveStyle, style, value} = this.props
     const {options, optionsOpen, selectionIndex} = digs(this.state, "options", "optionsOpen", "selectionIndex")
-    const actualInputProps = {...inputProps, onChange, onFocus, onKeyDown, ref: inputRef}
+    const actualInputProps = {...inputProps, onChangeText, onFocus, onKeyPress: onKeyDown, value}
+
+    if (Platform.OS == "web") {
+      useEventListener(window, "click", this.onWindowClicked)
+    }
+
+    const actualOptionsContainerStyle = Object.assign(
+      {
+        position: "absolute",
+        top: 1,
+        left: 1,
+        zIndex: 9999,
+        elevation: 9999,
+        width: "100%",
+        border: "1px solid black",
+        background: "#fff"
+      },
+      optionsContainerStyle
+    )
 
     return (
-      <div className={classNames("haya--typeahead", className)} ref={rootRef}>
-        <EventListener event="click" onCalled={this.onWindowClicked} target={window} />
+      <View dataSet={{class: classNames("haya--typeahead", className)}} ref={rootRef} style={style}>
         {inputComponent && inputComponent({inputProps: actualInputProps})}
-        {!inputComponent && <input {...actualInputProps} />}
+        {!inputComponent && <TextInput {...actualInputProps} />}
         {optionsOpen && options.length > 0 &&
-          <div className="haya--typeahead--options-container">
-            {options.map(({text, value}, optionIndex) =>
-              <a
-                className="haya--typeahead-option-link"
-                data-focus={optionIndex == selectionIndex}
-                data-value={value}
-                href="#"
-                key={value}
-                onClick={(e) => this.onOptionLinkClicked(e, {optionIndex})}
-              >
-                {text}
-              </a>
-            )}
-          </div>
+          <View>
+            <View dataSet={{class: "haya--typeahead--options-container"}} style={actualOptionsContainerStyle}>
+              {options.map(({text, value}, optionIndex) =>
+                <Option
+                  key={value}
+                  onOptionLinkClicked={this.onOptionLinkClicked}
+                  optionActiveStyle={optionActiveStyle}
+                  optionIndex={optionIndex}
+                  optionStyle={optionStyle}
+                  selectionIndex={selectionIndex}
+                  text={text}
+                  value={value}
+                />
+              )}
+            </View>
+          </View>
         }
-      </div>
+      </View>
     )
   }
 
   applySelection = (selectionIndex) => {
     const {onOptionChosen} = this.props
-    const input = digg(this, "inputRef", "current")
     const {options, selectedOption} = digs(this.state, "options", "selectedOption")
     const option = digg(options, selectionIndex)
-
-    input.value = option.text
 
     if (!selectedOption || selectedOption.value != option.value) {
       if (onOptionChosen) onOptionChosen({option})
@@ -75,12 +128,10 @@ export default class HayaTypeahead extends React.PureComponent {
     }
   }
 
-  onChange = async (e) => {
-    const value = e.target.value
-
+  onChangeText = async (value) => {
     this.loadNewOptionsDebounced({value})
 
-    if (this.props.onChange) this.props.onChange(e)
+    if (this.props.onChangeText) this.props.onChangeText(value)
   }
 
   loadNewOptions = async ({value}) => {
@@ -132,9 +183,7 @@ export default class HayaTypeahead extends React.PureComponent {
     if (!optionsOpen && !enterPressed && !leftAltPressed) this.setState({optionsOpen: true})
   }
 
-  onOptionLinkClicked = (e, {optionIndex}) => {
-    e.preventDefault()
-
+  onOptionLinkClicked = ({optionIndex}) => {
     this.applySelection(optionIndex)
   }
 
@@ -171,4 +220,4 @@ export default class HayaTypeahead extends React.PureComponent {
       this.setState(prevState => ({selectionIndex: prevState.selectionIndex + 1}))
     }
   }
-}
+})
