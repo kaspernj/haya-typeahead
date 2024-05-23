@@ -143,7 +143,6 @@ export default shapeComponent(class HayaTypeahead extends ShapeComponent {
     if (selectionIndex !== null && selectionIndex >= options.length) newState.selectionIndex = options.length - 1
 
     this.findSelectedFromMatchingOption({options, value})
-
     this.setState(newState)
   }
 
