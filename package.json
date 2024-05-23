@@ -8,6 +8,7 @@
   "dependencies": {
     "classnames": "^2.3.1",
     "debounce": "^1.2.1",
-    "diggerize": "^1.0.5"
+    "diggerize": "^1.0.5",
+    "set-state-compare": "^1.0.42"
   }
 }

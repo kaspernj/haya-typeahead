@@ -16,3 +16,15 @@ diggerize@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/diggerize/-/diggerize-1.0.5.tgz#268fd91f204959ee85bc7a0ee776178870a470f2"
   integrity sha512-DQZM0okJRCslVWAuyR6GCZfb9vdPApymlIq//ax53KxUAwvnUTLegYFIyvPm3oXBYGTdbaUV/iZ4K+NDSahDAA==
+
+"fetching-object@>= 1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/fetching-object/-/fetching-object-1.0.1.tgz#0182826488d05b9008b5cc70b7d92bf4b9f908b4"
+  integrity sha512-TzN9rlL9ZGzTbHClKAT+bPYLgKmb4pDTyIJWWmVWQYwVROSXe12dO+l/rosN2+NBLOMDjMu3neTRNhjyj6UMRg==
+
+set-state-compare@^1.0.42:
+  version "1.0.42"
+  resolved "https://registry.yarnpkg.com/set-state-compare/-/set-state-compare-1.0.42.tgz#38997971dafb2a76bcf8d9a20a36f26635c51220"
+  integrity sha512-q/GLqm87Er0+qpK6JUt6Lr2YYJFdLBnxGcP3GyPiY5yWRHBj735MWbxuPsGTUHz/jjB6LWQp7/x6ZeSPMYFSJg==
+  dependencies:
+    fetching-object ">= 1.0.1"
