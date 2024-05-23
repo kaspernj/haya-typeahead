@@ -3,10 +3,11 @@ import {shapeComponent, ShapeComponent} from "set-state-compare/src/shape-compon
 import classNames from "classnames"
 import debounce from "debounce"
 import {digs} from "diggerize"
+import {memo} from "react"
 import useEventListener from "@kaspernj/api-maker/src/use-event-listener"
 import PropTypesExact from "prop-types-exact"
 
-const Option = shapeComponent(class Option extends ShapeComponent {
+const Option = memo(shapeComponent(class Option extends ShapeComponent {
   render() {
     const {optionIndex, optionStyle, optionActiveStyle, selectionIndex, text, value} = this.props
     const focus = optionIndex == selectionIndex
@@ -35,9 +36,9 @@ const Option = shapeComponent(class Option extends ShapeComponent {
   onOptionLinkClicked = () => {
     this.props.onOptionLinkClicked({optionIndex: this.props.optionIndex})
   }
-})
+}))
 
-export default shapeComponent(class HayaTypeahead extends ShapeComponent {
+export default memo(shapeComponent(class HayaTypeahead extends ShapeComponent {
   static propTypes = PropTypesExact({
     className: PropTypes.string,
     inputComponent: PropTypes.elementType,
@@ -219,4 +220,4 @@ export default shapeComponent(class HayaTypeahead extends ShapeComponent {
       this.setState(prevState => ({selectionIndex: prevState.selectionIndex + 1}))
     }
   }
-})
+}))
