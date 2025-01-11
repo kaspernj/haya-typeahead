@@ -1,10 +1,12 @@
+import React, {useRef} from "react"
 import {Platform, Pressable, Text, TextInput, View} from "react-native"
 import {shapeComponent, ShapeComponent} from "set-state-compare/src/shape-component"
 import classNames from "classnames"
 import debounce from "debounce"
-import {digs} from "diggerize"
-import useEventListener from "@kaspernj/api-maker/src/use-event-listener"
+import {digg, digs} from "diggerize"
+import PropTypes from "prop-types"
 import PropTypesExact from "prop-types-exact"
+import useEventListener from "@kaspernj/api-maker/src/use-event-listener"
 
 const Option = shapeComponent(class Option extends ShapeComponent {
   render() {
