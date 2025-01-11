@@ -1,6 +1,6 @@
 {
   "name": "haya-typeahead",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "index.js",
   "repository": "git@github.com:kaspernj/haya-typeahead.git",
   "author": "k@spernj.org",
